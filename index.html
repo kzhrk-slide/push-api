@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Awesome Presentation</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .big {
+        font-size: 150px;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Push API
+
+---
+## Agenda
+
+* Push API
+* Service Worker
+* Let's encrypt
+* Google Cloud Messaging
+
+---
+## Push API
+
+Push API は、Web アプリケーションがサーバからメッセージ (プッシュ通知) を受信できるようにします。
+
+Web アプリケーションがフォアグランド状態かどうか、読み込まれているかどうかに関わらず利用できます。
+
+開発者は、オプトインしたユーザへ非同期の通知と更新を届けることができ、**タイムリーな新着コンテンツによってユーザの関心を得られるでしょう**。
+
+---
+## Push API
+
+アプリがプッシュメッセージを受信するために、アプリで Service worker が動作している必要があります。Serivce worker が動作している時に、PushManager.subscribe() を利用してプッシュ通知の購読ができます。
+
+---
+## Service Worker
+
+Service Workerは基本的にWebアプリケーションやブラウザとネットワークの間のプロキシサーバーとして機能します。
+
+それらは、ネットワークリクエストを受信し、ネットワークの使用可否やサーバー上にあるassetの更新有無に基づく適切なアクションを取得する効果的なオフライン体験（Push API、Cache API）を作成することができます。
+
+---
+## Let's encrypt
+
+Let's Encrypt は、認証局（CA）として「SSL/TLSサーバ証明書」を無料で発行するとともに、証明書の発行・インストール・更新のプロセスを自動化することにより、TLS や HTTPS（TLSプロトコルによって提供されるセキュアな接続の上でのHTTP通信）を普及させることを目的としているプロジェクトです。
+
+---
+## インストール
+
+```
+$ cd /usr/local/
+$ git clone https://github.com/letsencrypt/letsencrypt
+$ cd letsencrypt
+$ ./letsencrypt-auto --help
+$ ./letsencrypt-auto certonly --webroot -w /var/www/dev.kzhrk.com -d dev.kzhrk.com
+```
+
+---
+## 証明書と秘密鍵の実体
+
+|name|path|
+|:---|:---|
+|サーバ証明書（公開鍵）|/etc/letsencrypt/archive/**ドメイン名**/cert**N**.pem|
+|中間証明書|/etc/letsencrypt/archive/**ドメイン名**/chain**N**.pem|
+|サーバ証明書と中間証明書が結合されたファイル|/etc/letsencrypt/archive/**ドメイン名**/fullchain**N**.pem|
+|秘密鍵|/etc/letsencrypt/archive/**ドメイン名**/privkey**N**.pem|
+
+N：証明書や鍵の発行順の連番
+
+---
+## 証明書のシンボリックリンク
+
+|name|path|
+|:---|:---|
+|サーバ証明書（公開鍵）|/etc/letsencrypt/live/**ドメイン名**/cert.pem|
+|中間証明書|/etc/letsencrypt/live/**ドメイン名**/chain.pem|
+|サーバ証明書と中間証明書が結合されたファイル|/etc/letsencrypt/live/**ドメイン名**/fullchain.pem|
+|秘密鍵|/etc/letsencrypt/live/**ドメイン名**/privkey.pem|
+
+証明書の期限は3ヶ月。<br>更新で実体のN（発行順の連番）が変更されるため、サーバ設定時にはシンボリックリンクを参照します。
+
+---
+## Google Cloud Messaging
+
+複数種類のデバイスが混在する環境でのメッセージの送受信を実現するクラウドサービスです。
+
+---
+## GCM API Keyを作成
+
+[Google Developers Console](https://console.developers.google.com/)
+
+---
+## サンプルサイト
+
+https://dev.kzhrk.com/
+
+---
+## Push通知
+
+```:
+curl --header "Authorization: key=(GCM Server API Key)" \
+--header Content-Type:"application/json" https://android.googleapis.com/gcm/send \
+-d "{\"registration_ids\":[\"(RegistrationID)\"]}"
+```
+
+---
+## まとめ
+
+- 必要なのはhttpsの設定とGCM設定
+- https設定はLet's encryptを使えば簡略化できる
+
+
+    </textarea>
+    <script src="js/remark.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create();
+    </script>
+  </body>
+</html>
