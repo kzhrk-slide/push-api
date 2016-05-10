@@ -63,12 +63,30 @@ Let's Encrypt は、認証局（CA）として「SSL/TLSサーバ証明書」を
 ---
 ## インストール
 
-```
+```:
 $ cd /usr/local/
 $ git clone https://github.com/letsencrypt/letsencrypt
 $ cd letsencrypt
 $ ./letsencrypt-auto --help
+```
+
+---
+## 証明書と秘密鍵の作成
+
+### webrootオプション
+
+指定したDocumentRootに.well-knowディレクトリが作成され、既存のWeb Serverを経由してドメインの認証が行われる。
+
+```:
 $ ./letsencrypt-auto certonly --webroot -w /var/www/dev.kzhrk.com -d dev.kzhrk.com
+```
+
+### standaloneオプション
+
+TCP Port 80を使ってドメインの認証が行われるため、Apacheやnginxの停止が必要。
+
+```:
+$ ./letsencrypt-auto certonly --standalone -d dev.kzhrk.com
 ```
 
 ---
