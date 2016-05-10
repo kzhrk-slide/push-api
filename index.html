@@ -24,18 +24,29 @@
 
 class: center, middle
 
-# Push API
+
+# Push APIを使ってみた
+
 
 ---
+
+
 ## Agenda
 
 * Push API
 * Service Worker
-* Let's encrypt
+* Let's encrypt (https)
 * Google Cloud Messaging
 
 ---
-## Push API
+class: center, middle
+
+
+# Push API
+
+
+---
+
 
 Push API は、Web アプリケーションがサーバからメッセージ (プッシュ通知) を受信できるようにします。
 
@@ -43,24 +54,80 @@ Web アプリケーションがフォアグランド状態かどうか、読み�
 
 開発者は、オプトインしたユーザへ非同期の通知と更新を届けることができ、**タイムリーな新着コンテンツによってユーザの関心を得られるでしょう**。
 
----
-## Push API
+[Push API - Web API インターフェイス | MDN](https://developer.mozilla.org/ja/docs/Web/API/Push_API)
 
-アプリがプッシュメッセージを受信するために、アプリで Service worker が動作している必要があります。Serivce worker が動作している時に、PushManager.subscribe() を利用してプッシュ通知の購読ができます。
 
 ---
-## Service Worker
+
+
+アプリがプッシュメッセージを受信するために、アプリで **Service Worker** が動作している必要があります。
+
+Serivce Worker が動作している時に、PushManager.subscribe() を利用してプッシュ通知の購読ができます。
+
+戻り値の PushSubscription には、プッシュメッセージの配信に必要な情報であるエンドポイントとデータ送信用の暗号キーがすべて含まれています。
+
+プッシュメッセージを受信すると、そのメッセージを扱うために Service worker が起動します。
+
+これは、ServiceWorkerGlobalScope.onpush イベントハンドラへ配信されます。
+
+これにより、例えば (ServiceWorkerRegistration.showNotification() を使用して) 受信した通知を表示するなど、アプリケーションがプッシュ通知の受信に応じた動作ができます。
+
+
+---
+
+
+## サポートブラウザ
+
+- Firefox 45~
+- Chrome 50~
+- Chrome for Android 50~
+
+[Can I use...](http://caniuse.com/#feat=push-api)
+
+
+---
+class: center, middle
+
+
+# Service Worker
+
+
+---
+
 
 Service Workerは基本的にWebアプリケーションやブラウザとネットワークの間のプロキシサーバーとして機能します。
 
 それらは、ネットワークリクエストを受信し、ネットワークの使用可否やサーバー上にあるassetの更新有無に基づく適切なアクションを取得する効果的なオフライン体験（Push API、Cache API）を作成することができます。
 
+[ServiceWorker API - Web API インターフェイス | MDN](https://developer.mozilla.org/ja/docs/Web/API/ServiceWorker_API)
+
+
 ---
-## Let's encrypt
+
+
+## サポートブラウザ
+
+[Can I use... Support tables for HTML5, CSS3, etc](http://caniuse.com/#search=serviceworker)
+
+
+---
+class: center, middle
+
+
+# Let's encrypt
+
+
+---
+
 
 Let's Encrypt は、認証局（CA）として「SSL/TLSサーバ証明書」を無料で発行するとともに、証明書の発行・インストール・更新のプロセスを自動化することにより、TLS や HTTPS（TLSプロトコルによって提供されるセキュアな接続の上でのHTTP通信）を普及させることを目的としているプロジェクトです。
 
+[Let's Encrypt 総合ポータル](https://letsencrypt.jp/)
+
+
 ---
+
+
 ## インストール
 
 ```:
@@ -71,6 +138,8 @@ $ ./letsencrypt-auto --help
 ```
 
 ---
+
+
 ## 証明書と秘密鍵の作成
 
 ### webrootオプション
@@ -90,6 +159,8 @@ $ ./letsencrypt-auto certonly --standalone -d dev.kzhrk.com
 ```
 
 ---
+
+
 ## 証明書と秘密鍵の実体
 
 |name|path|
@@ -101,7 +172,10 @@ $ ./letsencrypt-auto certonly --standalone -d dev.kzhrk.com
 
 N：証明書や鍵の発行順の連番
 
+
 ---
+
+
 ## 証明書のシンボリックリンク
 
 |name|path|
@@ -113,22 +187,75 @@ N：証明書や鍵の発行順の連番
 
 証明書の期限は3ヶ月。<br>更新で実体のN（発行順の連番）が変更されるため、サーバ設定時にはシンボリックリンクを参照します。
 
+
 ---
-## Google Cloud Messaging
+
+
+## 証明書の更新
+
+```:
+$ su root
+$ crontab -e
+$ 00 05 01 * * /usr/local/letsencrypt/letsencrypt-auto renew
+```
+
+renewオプションで過去に取得した証明書のうち、有効期間の残りが30日未満の証明書が更新します。
+
+
+---
+
+
+## nginx
+
+```
+server {
+     listen       443 ssl;
+     server_name  dev.kzhrk.com;
+
+     ssl_certificate /etc/letsencrypt/live/dev.kzhrk.com/fullchain.pem;
+     ssl_certificate_key /etc/letsencrypt/live/dev.kzhrk.com/privkey.pem;
+
+     ssl_session_cache   shared:SSL:3m;
+     ssl_buffer_size     8k;
+     ssl_session_timeout 10m;
+
+     ...
+}
+```
+
+
+---
+class: center, middle
+
+
+# Google Cloud Messaging
+
+
+---
+
 
 複数種類のデバイスが混在する環境でのメッセージの送受信を実現するクラウドサービスです。
 
+
 ---
+
+
 ## GCM API Keyを作成
 
 [Google Developers Console](https://console.developers.google.com/)
 
+
 ---
+
+
 ## サンプルサイト
 
-https://dev.kzhrk.com/
+https://kzhrk-sandbox.github.io/sample-push-api/
+
 
 ---
+
+
 ## Push通知
 
 ```:
@@ -137,11 +264,94 @@ curl --header "Authorization: key=(GCM Server API Key)" \
 -d "{\"registration_ids\":[\"(RegistrationID)\"]}"
 ```
 
+
 ---
+
+
+## Service Workerの登録
+
+```:js
+if ('serviceWorker' in window.navigator) {
+  navigator.serviceWorker.register('sw.js').then(function (reg) {
+    console.log('service worker registration:' + reg);
+  }).catch(function (err) {
+    console.log('error: ' + err);
+  });
+
+  navigator.serviceWorker.ready.then(function (serviceWorkerRegistration) {
+    serviceWorkerRegistration.pushManager.subscribe().then(function (pushSubscription) {
+
+      console.log('gcmToken: ' + pushSubscription.endpoint);
+
+    }, function (err) {
+      console.log('error: ' + err);
+    });
+  });
+}
+```
+
+
+---
+
+
+## manifest file
+
+```:jade
+link(rel="manifest", href="manifest.json")
+```
+
+```:
+{
+  "name": "sample-push-api",
+  "gcm_sender_id": "(GCM Project ID)"
+}
+```
+
+
+---
+
+
+## Service Worker
+
+```:js
+self.addEventListener('push', function(event) {
+  console.log('Received a push message', event);
+
+  var title = 'Yay a message.';
+  var body = 'We have received a push message.';
+  var icon = 'http://dummyimage.com/192x192/666/fff';
+  var tag = 'simple-push-demo-notification-tag';
+
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body: body,
+      icon: icon,
+      tag: tag
+    })
+  );
+});
+
+self.addEventListener("notificationclick", function(event) {
+  event.notification.close();
+  clients.openWindow("/");
+}, false);
+```
+
+
+---
+
+
 ## まとめ
 
 - 必要なのはhttpsの設定とGCM設定
+- 本格的に使うのであればサーバ構築は必須
 - https設定はLet's encryptを使えば簡略化できる
+
+
+---
+
+
+background-image: url(img/fin.png)
 
 
     </textarea>
