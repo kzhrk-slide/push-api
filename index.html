@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>My Awesome Presentation</title>
+    <title>Push APIを使ってみた</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <style type="text/css">
       @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
@@ -27,16 +27,6 @@ class: center, middle
 
 # Push APIを使ってみた
 
-
----
-
-
-## Agenda
-
-* Push API
-* Service Worker
-* Let's encrypt (https)
-* Google Cloud Messaging
 
 ---
 class: center, middle
@@ -66,17 +56,19 @@ Serivce Worker が動作している時に、PushManager.subscribe() を利用�
 
 戻り値の PushSubscription には、プッシュメッセージの配信に必要な情報であるエンドポイントとデータ送信用の暗号キーがすべて含まれています。
 
-プッシュメッセージを受信すると、そのメッセージを扱うために Service worker が起動します。
+プッシュメッセージを受信すると、そのメッセージを扱うために Service Worker が起動します。
 
 これは、ServiceWorkerGlobalScope.onpush イベントハンドラへ配信されます。
 
 これにより、例えば (ServiceWorkerRegistration.showNotification() を使用して) 受信した通知を表示するなど、アプリケーションがプッシュ通知の受信に応じた動作ができます。
 
+[Push API - Web API インターフェイス | MDN](https://developer.mozilla.org/ja/docs/Web/API/Push_API)
+
 
 ---
 
 
-## サポートブラウザ
+## Push API サポートブラウザ
 
 - Firefox 45~
 - Chrome 50~
@@ -105,9 +97,15 @@ Service Workerは基本的にWebアプリケーションやブラウザとネッ
 ---
 
 
+background-image: url(img/lifecycle.png)
+
+
+---
+
+
 ## サポートブラウザ
 
-[Can I use... Support tables for HTML5, CSS3, etc](http://caniuse.com/#search=serviceworker)
+[Can I use...](http://caniuse.com/#search=serviceworker)
 
 
 ---
@@ -184,7 +182,7 @@ N：証明書や鍵の発行順の連番
 |中間証明書|/etc/letsencrypt/live/**ドメイン名**/chain.pem|
 |サーバ証明書と中間証明書が結合されたファイル|/etc/letsencrypt/live/**ドメイン名**/fullchain.pem|
 |秘密鍵|/etc/letsencrypt/live/**ドメイン名**/privkey.pem|
-
+ 
 証明書の期限は3ヶ月。<br>更新で実体のN（発行順の連番）が変更されるため、サーバ設定時にはシンボリックリンクを参照します。
 
 
@@ -199,7 +197,7 @@ $ crontab -e
 $ 00 05 01 * * /usr/local/letsencrypt/letsencrypt-auto renew
 ```
 
-renewオプションで過去に取得した証明書のうち、有効期間の残りが30日未満の証明書が更新します。
+renewオプションは過去に取得した証明書のうち、有効期間の残りが30日未満の証明書が更新します。
 
 
 ---
